@@ -54,6 +54,7 @@ LOCAL_APPS = [
     'apps.accounts',
     'apps.core',
     'apps.elo_ratings',
+    'apps.models',
     'apps.pickems',
     'apps.scheduling',
     'apps.standings',
