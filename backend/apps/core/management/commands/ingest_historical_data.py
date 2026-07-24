@@ -7,6 +7,7 @@ from django.core.management.base import BaseCommand, CommandParser
 from apps.core import constants
 from apps.core.data_ingestors import (
     elo_ratings_data,
+    injury_data,
     pickems_data,
     scheduling_data,
     standings_data,
@@ -37,6 +38,7 @@ class Command(BaseCommand):
 
         # Retrieve data from API
         schedule_df = nfl.import_schedules(years=years)
+        injury_df = nfl.import_injuries(years=years)
         with open(os.devnull, "w") as null_out:
             with redirect_stdout(null_out), redirect_stderr(null_out):
                 pbp_df = nfl.import_pbp_data(years=years)
@@ -49,5 +51,7 @@ class Command(BaseCommand):
         standings_data.populate_standings_data(self, schedule_df)
         pickems_data.populate_pickems_data(self, schedule_df)
         elo_ratings_data.populate_ratings_data(self, schedule_df)
-
+        
         stats_data.populate_stats_data(self, pbp_df)
+
+        injury_data.populate_injury_data(self, injury_df)
