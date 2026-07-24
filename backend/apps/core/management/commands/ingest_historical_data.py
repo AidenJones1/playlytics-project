@@ -1,5 +1,4 @@
 from contextlib import redirect_stderr, redirect_stdout
-from typing import Any
 import nfl_data_py as nfl
 import os
 
@@ -8,6 +7,7 @@ from django.core.management.base import BaseCommand, CommandParser
 from apps.core import constants
 from apps.core.data_ingestors import (
     scheduling_data,
+    stats_data,
 )
 
 class Command(BaseCommand):
@@ -34,8 +34,13 @@ class Command(BaseCommand):
 
         # Retrieve data from API
         schedule_df = nfl.import_schedules(years=years)
+        with open(os.devnull, "w") as null_out:
+            with redirect_stdout(null_out), redirect_stderr(null_out):
+                pbp_df = nfl.import_pbp_data(years=years)
 
         # Populate data
         scheduling_data.populate_season_data(self, schedule_df)
         scheduling_data.populate_week_data(self, schedule_df)
         scheduling_data.populate_game_data(self, schedule_df)
+
+        stats_data.populate_stats_data(self, pbp_df)

@@ -54,6 +54,7 @@ LOCAL_APPS = [
     'apps.accounts',
     'apps.core',
     'apps.scheduling',
+    'apps.stats',
     'apps.teams',
 ]
 
