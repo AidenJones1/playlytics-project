@@ -53,6 +53,7 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     'apps.accounts',
     'apps.core',
+    'apps.elo_ratings',
     'apps.scheduling',
     'apps.standings',
     'apps.stats',

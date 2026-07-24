@@ -6,6 +6,7 @@ from django.core.management.base import BaseCommand, CommandParser
 
 from apps.core import constants
 from apps.core.data_ingestors import (
+    elo_ratings_data,
     scheduling_data,
     standings_data,
     stats_data,
@@ -46,3 +47,4 @@ class Command(BaseCommand):
 
         standings_data.populate_standings_data(self, schedule_df)
         stats_data.populate_stats_data(self, pbp_df)
+        elo_ratings_data.populate_ratings_data(self, schedule_df)
