@@ -3,6 +3,7 @@ import re
 from rest_framework.serializers import ValidationError
 
 from apps.core.blacklist import BLACKLIST_WORDS
+from apps.teams.models import Team
 
 def validate_serializer(serializer_class, data, **kwargs) -> dict:
     serializer = serializer_class(data=data, **kwargs)
@@ -39,3 +40,11 @@ def validate_passwords(value):
             "Password must contain at least one special character."
         )
     return value
+
+def does_passwords_match(password, password_confirm):
+    if password != password_confirm:
+        raise ValidationError("Passwords do not match.")
+
+def does_team_exist(team_abbreviation):
+    if not Team.objects.filter(abbreviation=team_abbreviation).exists():
+        raise ValidationError("Favorite team does not exist.")
