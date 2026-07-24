@@ -1,0 +1,14 @@
+# Environment variables
+.env
+
+# Python
+.venv/
+*/_pycache__/
+*.pyc
+
+# Temporary files
+/temp/
+
+# Django
+/backend/media/
+/backend/apps/models/management/commands/
