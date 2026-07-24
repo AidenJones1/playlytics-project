@@ -7,6 +7,7 @@ from django.core.management.base import BaseCommand, CommandParser
 from apps.core import constants
 from apps.core.data_ingestors import (
     scheduling_data,
+    standings_data,
     stats_data,
 )
 
@@ -43,4 +44,5 @@ class Command(BaseCommand):
         scheduling_data.populate_week_data(self, schedule_df)
         scheduling_data.populate_game_data(self, schedule_df)
 
+        standings_data.populate_standings_data(self, schedule_df)
         stats_data.populate_stats_data(self, pbp_df)
