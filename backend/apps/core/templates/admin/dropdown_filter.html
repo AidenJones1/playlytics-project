@@ -1,0 +1,20 @@
+{% load i18n static %}
+
+<link rel="stylesheet" href="{% static 'admin/dropdown_filter.css' %}">
+
+<details data-filter-title="{{ title }}" open>
+    <summary>{% blocktranslate with filter_title=title %} By {{ filter_title }} {% endblocktranslate %}</summary>
+    <ul>
+        <li>
+            <select
+                class="admin-dropdown-filter__select"
+                aria-label="{{ title }}"
+                onchange="if (this.value) { window.location.href = this.value; }"
+            >
+                {% for choice in choices %}
+                    <option value="{{ choice.query_string }}"{% if choice.selected %} selected{% endif %}>{{ choice.display }}</option>
+                {% endfor %}
+            </select>
+        </li>
+    </ul>
+</details>
