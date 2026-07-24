@@ -3,6 +3,7 @@ import uuid
 from django.db import models
 
 from apps.scheduling.choices import SeasonType, GameStatus, GameLocation
+from apps.scheduling.querysets import GameQuerySet
 
 class Season(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -44,6 +45,8 @@ class Week(models.Model):
 
 
 class Game(models.Model):
+    objects = GameQuerySet.as_manager()
+    
     id = models.CharField(primary_key=True, max_length=255, editable=False)
     week = models.ForeignKey('scheduling.Week', on_delete=models.CASCADE, related_name='games', blank=False, null=False)
     game_time = models.DateTimeField(blank=False, null=False)
@@ -69,6 +72,6 @@ class Game(models.Model):
         verbose_name_plural = "Games"
         db_table = "games"
         ordering = ['-week__season__year', 'week__week', 'game_time']
-        
+
     def __str__(self):
         return f"{self.week}: {self.away_team} @ {self.home_team}"
