@@ -15,3 +15,10 @@ class Divisions(TextChoices):
     AFC_WEST = 'AFC West', 'AFC West'
 
 CONFERENCE_DIVISION_CHOICES = [*Conferences.choices, *Divisions.choices]
+
+
+class InjuryStatus(TextChoices):
+    OUT = 'Out', 'Out'
+    QUESTIONABLE = 'Questionable', 'Questionable'
+    DOUBTFUL = 'Doubtful', 'Doubtful'
+    PROBABLE = 'Probable', 'Probable'
