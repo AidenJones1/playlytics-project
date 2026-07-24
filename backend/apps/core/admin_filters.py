@@ -1,6 +1,33 @@
 from django.contrib import admin
+from django.contrib.admin.filters import ChoicesFieldListFilter, FieldListFilter
 
 from apps.teams.choices import CONFERENCE_DIVISION_CHOICES, Conferences, Divisions
+
+
+class DropdownChoicesFieldListFilter(ChoicesFieldListFilter):
+	"""Force dropdown rendering for all choice-based admin field filters."""
+
+	template = "admin/dropdown_filter.html"
+
+
+FieldListFilter.register(
+	lambda field: bool(getattr(field, "flatchoices", ())),
+	DropdownChoicesFieldListFilter,
+	take_priority=True,
+)
+
+
+class DropdownRelatedFieldListFilter(admin.RelatedFieldListFilter):
+	"""Force dropdown rendering for related-field admin filters."""
+
+	template = "admin/dropdown_filter.html"
+
+
+FieldListFilter.register(
+	lambda field: bool(getattr(field, "remote_field", None)),
+	DropdownRelatedFieldListFilter,
+	take_priority=True,
+)
 
 class ChoiceDropdownFilter(admin.SimpleListFilter):
 	"""Render choice-based admin filters as a dropdown in every case."""
