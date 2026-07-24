@@ -15,4 +15,13 @@ urlpatterns = [
         views.ActivationViewSet.as_view({"get": "retrieve"}),
         name="activate"
     ),
+    path(
+        "user/<str:username>/",
+        views.UserViewSet.as_view({
+            "get": "retrieve",
+            "patch": "partial_update",
+            "delete": "destroy"
+        }),
+        name="user-detail"
+    ),
 ]
