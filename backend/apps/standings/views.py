@@ -9,6 +9,7 @@ from apps.core.serializers import SeasonWeekQuerySerializer
 from apps.core.validators import validate_serializer
 from apps.standings.models import TeamStandings
 from apps.standings.querysets import TeamStandingsQuerySet
+from apps.standings.services.rankings import rank_standings_queryset
 from apps.standings.serializers import (
     StandingsSerializer, 
     ConferenceStandingsQuerySerializer, 
@@ -18,18 +19,13 @@ from apps.standings.serializers import (
 class BaseStandingsViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
     query_serializer_class = SeasonWeekQuerySerializer
-    default_ordering = (
-        '-percentage',
-        '-wins',
-        '-point_differential',
-        'team',
-    )
+    ranking_scope = 'league'
 
     def apply_extra_filters(self, queryset, params):
         return queryset
 
     def apply_ranking(self, queryset):
-        return queryset.order_by(*self.default_ordering)
+        return rank_standings_queryset(queryset, scope=self.ranking_scope)
 
     def get_queryset(self):
         request = cast(Request, self.request)
@@ -53,6 +49,7 @@ class LeagueStandingsViewSet(BaseStandingsViewSet):
 class ConferenceStandingsViewSet(LeagueStandingsViewSet):
     # GET /standings/conference-standings/
     query_serializer_class = ConferenceStandingsQuerySerializer
+    ranking_scope = 'conference'
 
     def apply_extra_filters(self, queryset, params):
         return queryset.by_conference(params['conference'])
@@ -61,6 +58,7 @@ class ConferenceStandingsViewSet(LeagueStandingsViewSet):
 class DivisionStandingsViewSet(LeagueStandingsViewSet):
     # GET /standings/division-standings/
     query_serializer_class = DivisionStandingsQuerySerializer
+    ranking_scope = 'division'
 
     def apply_extra_filters(self, queryset, params):
         return queryset.by_division(params['division'])

@@ -16,3 +16,11 @@ class TeamStandingsQuerySet(QuerySet):
         return self.filter(
             team__conference=conference
         )
+
+    def apply_default_ordering(self):
+        return self.order_by(
+            '-percentage',
+            '-wins',
+            '-point_differential',
+            'team'
+        )
