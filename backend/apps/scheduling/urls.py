@@ -10,4 +10,9 @@ urlpatterns = [
         views.WeeklyScheduleViewSet.as_view({"get": "list"}),
         name="weekly-schedule"
     ),
+    path(
+        "team-schedule/",
+        views.TeamScheduleViewSet.as_view({"get": "list"}),
+        name="team-schedule"
+    ),
 ]
