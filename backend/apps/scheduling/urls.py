@@ -15,4 +15,9 @@ urlpatterns = [
         views.TeamScheduleViewSet.as_view({"get": "list"}),
         name="team-schedule"
     ),
+    path(
+        "game-preview/<str:game_id>/",
+        views.GamePreviewViewSet.as_view({"get": "retrieve"}),
+        name="game-preview"
+    ),
 ]

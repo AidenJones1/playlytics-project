@@ -7,7 +7,8 @@ from rest_framework.response import Response
 from rest_framework.request import Request
 
 from apps.core.validators import validate_serializer
-from apps.scheduling.models import Season, Week, Game
+from apps.scheduling.choices import GameStatus
+from apps.scheduling.models import Game
 from apps.scheduling.querysets import GameQuerySet
 from apps.scheduling import serializers
 
@@ -35,6 +36,7 @@ class WeeklyScheduleViewSet(viewsets.ViewSet):
         data["games"] = serializer.data
         return Response(data, status=status.HTTP_200_OK)
 
+
 class TeamScheduleViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
@@ -59,5 +61,16 @@ class TeamScheduleViewSet(viewsets.ViewSet):
         data["games"] = serializer.data
         return Response(data, status=status.HTTP_200_OK)
 
+
 class GamePreviewViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
+    
+    # Retrieves a preview of a specific game, including details about the teams and their previous games
+    # GET /api/scheduling/game-preview/<game_id>/
+    def retrieve(self, request, *args, **kwargs):
+        game_obj = get_object_or_404(Game, pk=kwargs['game_id'])
+        if game_obj.status == GameStatus.COMPLETED:
+            serializer = serializers.GameResultsSerializer(game_obj)
+        else:
+            serializer = serializers.GamePreviewSerializer(game_obj)
+        return Response(serializer.data, status=status.HTTP_200_OK)

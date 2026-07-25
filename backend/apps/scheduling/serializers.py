@@ -10,6 +10,22 @@ class WeeklyScheduleSerializer(cs.BaseScheduleSerializer):
         fields = cs.BaseScheduleSerializer.Meta.fields
 
 
+class GamePreviewSerializer(cs.BaseScheduleSerializer):
+    class Meta(cs.BaseScheduleSerializer.Meta):
+        model = Game
+        fields = cs.BaseScheduleSerializer.Meta.fields + [
+            "venue",
+        ]
+
+
+class GameResultsSerializer(cs.BaseScheduleSerializer):
+    class Meta(cs.BaseScheduleSerializer.Meta):
+        model = Game
+        fields = cs.BaseScheduleSerializer.Meta.fields + [
+            "venue",
+        ]
+
+
 class WeeklyScheduleQuerySerializer(cs.SeasonWeekQuerySerializer, cs.DivisionConferenceQuerySerializer):
     pass
 
