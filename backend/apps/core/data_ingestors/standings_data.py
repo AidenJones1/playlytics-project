@@ -11,6 +11,7 @@ def populate_standings_data(command, schedule_df):
     # Cache team objects by name so opponent conference/division lookups are cheap.
     teams_by_name = {team.abbreviation: team for team in Team.objects.all()}
     teams = schedule_df["home_team"].unique()
+    schedule_df = schedule_df[schedule_df["game_type"] == "REG"]
 
     for year in schedule_df['season'].unique():
         season_schedule_df = schedule_df[schedule_df['season'] == year]
@@ -19,13 +20,10 @@ def populate_standings_data(command, schedule_df):
 
         # Find the last regular season week for the given year
         weeks_for_season_objs = Week.objects.filter(season__year=year).order_by('-week')
-        last_week_obj = weeks_for_season_objs.first()
-        if not last_week_obj:
-            continue
-        last_regular_season_week = last_week_obj.week
+        last_week = max(season_schedule_df['week'].unique())
 
         # Iterate through each week of the regular season to calculate standings
-        for week in range(1, last_regular_season_week + 1):
+        for week in range(1, last_week + 1):
             week_obj = weeks_for_season_objs.filter(season__year=year, week=week).first()
 
             week_schedule_df = season_schedule_df[season_schedule_df['week'] == week]
