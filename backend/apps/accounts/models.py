@@ -38,6 +38,7 @@ class User(AbstractUser):
     is_active = models.BooleanField(default=True)
     is_superuser = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
+    favorite_team = models.ForeignKey('teams.Team', on_delete=models.SET_NULL, null=True, blank=True, related_name='favorite_team')
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email']
