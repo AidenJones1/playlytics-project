@@ -27,11 +27,29 @@ class BaseStandingsViewSet(viewsets.ViewSet):
     def apply_ranking(self, queryset):
         return rank_standings_queryset(queryset, scope=self.ranking_scope)
 
+    def get_latest_snapshot_queryset(self, standings_qs):
+        latest_snapshot = standings_qs.values_list(
+            'week__season__year',
+            'week__week',
+        ).first()
+        if not latest_snapshot:
+            return standings_qs.none()
+
+        season, week = latest_snapshot
+        return standings_qs.by_season_week(season, week)
+
     def get_queryset(self):
         request = cast(Request, self.request)
         params = validate_serializer(self.query_serializer_class, request.query_params)
         standings_qs = cast(TeamStandingsQuerySet, TeamStandings.objects)
         queryset = standings_qs.by_season_week(params['season'], params['week'])
+
+        # If defaults resolve to a season/week with no data, fallback to latest available.
+        season_was_explicit = 'season' in request.query_params
+        week_was_explicit = 'week' in request.query_params
+        if not season_was_explicit and not week_was_explicit and not queryset.exists():
+            queryset = self.get_latest_snapshot_queryset(standings_qs)
+
         queryset = self.apply_extra_filters(queryset, params)
         return self.apply_ranking(queryset)
 

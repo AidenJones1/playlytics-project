@@ -6,22 +6,25 @@ from apps.teams.models import Team
 from apps.scheduling.models import Game
 from apps.standings.models import TeamStandings
 from apps.standings.querysets import TeamStandingsQuerySet
+from apps.standings.services.tie_breakers import (
+    apply_conference_tiebreakers,
+    apply_division_tiebreakers,
+)
 
 
 def _default_ranked_team_ids(queryset):
     """Return team ids ordered by the current placeholder ranking rules."""
-    print(list(queryset.apply_default_ordering().values_list('team', flat=True)))
     return list(queryset.apply_default_ordering().values_list('team', flat=True))
 
 
 def _conference_ranked_team_ids(queryset):
-    """Return conference-ranked team ids using placeholder ordering."""
-    return _default_ranked_team_ids(queryset)
+    """Return conference-ranked team ids using placeholder tie-breakers."""
+    return apply_conference_tiebreakers(queryset)
 
 
 def _division_ranked_team_ids(queryset):
-    """Return division-ranked team ids using placeholder ordering."""
-    return _default_ranked_team_ids(queryset)
+    """Return division-ranked team ids using placeholder tie-breakers."""
+    return apply_division_tiebreakers(queryset)
 
 
 def _rank_from_team_ids(ranked_team_ids, team_obj):
