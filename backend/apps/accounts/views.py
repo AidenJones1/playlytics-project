@@ -79,6 +79,7 @@ class UserViewSet(viewsets.ViewSet):
         user_obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
 class ActivationViewSet(viewsets.ViewSet):
     permission_classes = [AllowAny]
 
@@ -96,3 +97,30 @@ class ActivationViewSet(viewsets.ViewSet):
         user_obj.save()
 
         return Response({"message": "Account activated successfully."}, status=status.HTTP_200_OK)
+
+
+class ResetPasswordViewSet(viewsets.ViewSet):
+    permission_classes = [AllowAny]
+
+    # Request a password reset by providing the user's email.
+    # POST /api/accounts/reset-password/
+    def create(self, request, *args, **kwargs):
+        data = validate_serializer(acc_sr.ResetPasswordSerializer, request.data)
+        user_obj = get_object_or_404(User, email=data['email'])
+        email.send_password_reset_email(user_obj)
+        return Response({"message": "Password reset email sent."}, status=status.HTTP_200_OK)
+
+    # Confirm the password reset using the provided token.
+    # PATCH /api/accounts/reset-password/confirm/
+    def partial_update(self, request, *args, **kwargs):
+        data = validate_serializer(acc_sr.ResetConfirmSerializer, request.data)
+        user_pk = token.get_user_pk_from_token(data['token'])
+        if not user_pk:
+            return Response({"error": "Invalid or expired token."}, status=status.HTTP_400_BAD_REQUEST)
+
+        user_obj = get_object_or_404(User, pk=user_pk)
+        user_obj.set_password(data['password'])
+        user_obj.save()
+        token.revoke_user_tokens(user_obj)
+
+        return Response({"message": "Password reset successfully."}, status=status.HTTP_200_OK)

@@ -21,7 +21,8 @@ class RegistrationSerializer(serializers.Serializer):
         return value
 
     def validate_favorite_team(self, value):
-        v.does_team_exist(value)
+        if value is not None:
+            v.does_team_exist(value)
         return value
 
     def validate(self, data):
@@ -43,7 +44,8 @@ class AccountUpdateSerializer(serializers.Serializer):
         return value
     
     def validate_favorite_team(self, value):
-        v.does_team_exist(value)
+        if value is not None:
+            v.does_team_exist(value)
         return value    
     
     def validate(self, data):
@@ -72,3 +74,20 @@ class PrivateAccountSerializer(PublicAccountSerializer):
                 'email'
             ]
         )
+
+
+class ResetPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+
+    def validate(self, attrs):
+        return super().validate(attrs)
+
+
+class ResetConfirmSerializer(serializers.Serializer):
+    token = serializers.CharField(required=True)
+    password = serializers.CharField(required=True, write_only=True, min_length=8, validators=[v.validate_passwords])
+    password_confirm = serializers.CharField(required=True, write_only=True, min_length=8, validators=[v.validate_passwords])
+
+    def validate(self, data):
+        v.does_passwords_match(data['password'], data['password_confirm'])
+        return data

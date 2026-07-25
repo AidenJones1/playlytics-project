@@ -24,4 +24,14 @@ urlpatterns = [
         }),
         name="user-detail"
     ),
+    path(
+        "reset-password/",
+        views.ResetPasswordViewSet.as_view({"post": "create",}),
+        name="reset-password"
+    ),
+    path(
+        "reset-password/confirm/",
+        views.ResetPasswordViewSet.as_view({"patch": "partial_update",}),
+        name="reset-password-confirm"
+    )
 ]

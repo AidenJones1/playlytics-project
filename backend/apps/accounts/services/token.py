@@ -18,7 +18,7 @@ def get_user_pk_from_token(token):
         return None
 
 
-def revoke_user_refresh_tokens(user_obj) -> int:
+def revoke_user_tokens(user_obj) -> int:
     blacklisted_count = 0
     for outstanding_token in OutstandingToken.objects.filter(user=user_obj):
         _, created = BlacklistedToken.objects.get_or_create(token=outstanding_token)
