@@ -11,6 +11,7 @@ from apps.scheduling.choices import GameStatus
 from apps.scheduling.models import Game
 from apps.scheduling.querysets import GameQuerySet
 from apps.scheduling import serializers
+from apps.standings.services.rankings import get_team_pregame_rankings
 
 class WeeklyScheduleViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
@@ -69,8 +70,13 @@ class GamePreviewViewSet(viewsets.ViewSet):
     # GET /api/scheduling/game-preview/<game_id>/
     def retrieve(self, request, *args, **kwargs):
         game_obj = get_object_or_404(Game, pk=kwargs['game_id'])
+        data = {}
         if game_obj.status == GameStatus.COMPLETED:
-            serializer = serializers.GameResultsSerializer(game_obj)
+            data['game'] = serializers.GameResultsSerializer(game_obj).data
         else:
-            serializer = serializers.GamePreviewSerializer(game_obj)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+            data['game'] = serializers.GamePreviewSerializer(game_obj).data
+        data['pregame_rankings'] = {
+            "home_team": get_team_pregame_rankings(game_obj, game_obj.home_team),
+            "away_team": get_team_pregame_rankings(game_obj, game_obj.away_team)
+        }
+        return Response(data, status=status.HTTP_200_OK)
