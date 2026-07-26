@@ -9,7 +9,7 @@ from apps.standings.models import TeamStandings
 @admin.register(TeamStandings, site=playlytics_admin_site)
 class TeamStandingsAdmin(admin.ModelAdmin):
     list_display = ("team", "week", "wins", "losses", "percentage", "point_differential", "streak")
-    ordering = ("-week__season__year", "week__week", "-percentage", "-point_differential")
+    ordering = ("-week__season__year", "week__week", "-wins", "losses",)
 
     search_fields = ("team__name", "team__abbreviation",)
     list_filter = (

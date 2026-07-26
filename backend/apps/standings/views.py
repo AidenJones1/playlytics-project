@@ -12,6 +12,7 @@ from apps.standings.querysets import TeamStandingsQuerySet
 from apps.standings.services.rankings import rank_standings_queryset
 from apps.standings.serializers import (
     StandingsSerializer, 
+    LeagueStandingsQuerySerializer,
     ConferenceStandingsQuerySerializer, 
     DivisionStandingsQuerySerializer
 )
@@ -61,7 +62,7 @@ class BaseStandingsViewSet(viewsets.ViewSet):
 
 class LeagueStandingsViewSet(BaseStandingsViewSet):
     # GET /standings/league-standings/
-    pass
+    query_serializer_class = LeagueStandingsQuerySerializer
 
 
 class ConferenceStandingsViewSet(LeagueStandingsViewSet):

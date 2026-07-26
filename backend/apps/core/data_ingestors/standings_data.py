@@ -1,4 +1,4 @@
-from apps.core.data_ingestors.counters import UpsertCounter
+from apps.core.data_ingestors.counters import UpsertCounter, WinLossTieCounter, PointsCounter
 from apps.scheduling.models import Week
 from apps.standings.models import TeamStandings
 from apps.teams.models import Team
@@ -69,26 +69,14 @@ def populate_standings_data(command, schedule_df):
                     )
                     counter.record(was_created)
                 
-                wins = 0
-                losses = 0
-                ties = 0
-                home_wins = 0
-                home_losses = 0
-                home_ties = 0
-                away_wins = 0
-                away_losses = 0
-                away_ties = 0
-                conference_wins = 0
-                conference_losses = 0
-                conference_ties = 0
-                division_wins = 0
-                division_losses = 0
-                division_ties = 0
-                point_differential = 0
-                streak = 0
+                win_counter = WinLossTieCounter()
+                points_counter = PointsCounter()
 
                 # Iterate through each game in the team's schedule to calculate standings
                 for _, row in team_schedule_df.iterrows():
+                    if pd.isna(row["result"]):
+                        continue
+
                     is_home_team = row["home_team"] == team
                     opponent_name = row["away_team"] if is_home_team else row["home_team"]
                     opponent_obj = teams_by_name.get(opponent_name)
@@ -101,105 +89,46 @@ def populate_standings_data(command, schedule_df):
                         opponent_obj is not None and opponent_obj.division == team_obj.division
                     )
 
-                    # Get the result of the game
-                    result = int(row["result"])
+                    win_counter.record(
+                        result=row["result"],
+                        is_home=is_home_team,
+                        is_conference_game=in_conference_game,
+                        is_divisional_game=in_division_game,
+                    )
                     if is_home_team:
-                        # If the evaluated team is the home team and won
-                        if result > 0:
-                            wins += 1
-                            home_wins += 1
-                            if in_conference_game:
-                                conference_wins += 1
-                            if in_division_game:
-                                division_wins += 1
-                            point_differential += abs(int(row["result"]))
-                            streak = streak + 1 if streak >= 0 else 1
-
-                        # If the evaluated team is the home team and lost
-                        elif result < 0:
-                            losses += 1
-                            home_losses += 1
-                            if in_conference_game:
-                                conference_losses += 1
-                            if in_division_game:
-                                division_losses += 1
-                            point_differential -= abs(int(row["result"]))
-                            streak = streak - 1 if streak <= 0 else -1
-
-                        # If the evaluated team is the home team and tied
-                        else:
-                            ties += 1
-                            home_ties += 1
-                            if in_conference_game:
-                                conference_ties += 1
-                            if in_division_game:
-                                division_ties += 1
-                            streak = 0
-                            
+                        points_counter.record(
+                            points_for=row["home_score"],
+                            points_against=row["away_score"]
+                        )
                     else:
-                        # If the evaluated team is the away team and won
-                        if result < 0:
-                            wins += 1
-                            away_wins += 1
-                            if in_conference_game:
-                                conference_wins += 1
-                            if in_division_game:
-                                division_wins += 1
-                            point_differential += abs(int(row["result"]))
-                            streak = streak + 1 if streak >= 0 else 1
-
-                        # If the evaluated team is the away team and lost
-                        elif result > 0:
-                            losses += 1
-                            away_losses += 1
-                            if in_conference_game:
-                                conference_losses += 1
-                            if in_division_game:
-                                division_losses += 1
-                            point_differential -= abs(int(row["result"]))
-                            streak = streak - 1 if streak <= 0 else -1
-
-                        # If the evaluated team is the away team and tied
-                        else:
-                            ties += 1
-                            away_ties += 1
-                            if in_conference_game:
-                                conference_ties += 1
-                            if in_division_game:
-                                division_ties += 1
-                            streak = 0
-                
-                # Calculate the number of games and winning percentage
-                number_of_games = wins + losses + ties
-                percentage = round(wins / number_of_games, 3) if number_of_games > 0 else 0.000
-
-                # Format the streak for display
-                if streak != 0:
-                    streak = f"{'W' if streak > 0 else 'L'}{abs(streak)}"
+                        points_counter.record(
+                            points_for=row["away_score"],
+                            points_against=row["home_score"]
+                        )
 
                 # Create standings object
                 _, was_created = TeamStandings.objects.update_or_create(
                     team=team_obj,
                     week=week_obj,
                     defaults={
-                        "wins": wins,
-                        "losses": losses,
-                        "ties": ties,
-                        "percentage": percentage,
-                        "home_wins": home_wins,
-                        "home_losses": home_losses,
-                        "home_ties": home_ties,
-                        "away_wins": away_wins,
-                        "away_losses": away_losses,
-                        "away_ties": away_ties,
-                        "conference_wins": conference_wins,
-                        "conference_losses": conference_losses,
-                        "conference_ties": conference_ties,
-                        "division_wins": division_wins,
-                        "division_losses": division_losses,
-                        "division_ties": division_ties,
-                        "point_differential": point_differential,
-                        "streak": streak,
+                        "wins": win_counter.wins,
+                        "losses": win_counter.losses,
+                        "ties": win_counter.ties,
+                        "home_wins": win_counter.home_wins,
+                        "home_losses": win_counter.home_losses,
+                        "home_ties": win_counter.home_ties,
+                        "away_wins": win_counter.away_wins,
+                        "away_losses": win_counter.away_losses,
+                        "away_ties": win_counter.away_ties,
+                        "conference_wins": win_counter.conference_wins,
+                        "conference_losses": win_counter.conference_losses,
+                        "conference_ties": win_counter.conference_ties,
+                        "division_wins": win_counter.division_wins,
+                        "division_losses": win_counter.division_losses,
+                        "division_ties": win_counter.division_ties,
+                        "streak": win_counter.streak_label,
+                        "points_for": points_counter.points_for,
+                        "points_against": points_counter.points_against,
                     }
                 )
 
