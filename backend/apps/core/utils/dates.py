@@ -83,3 +83,35 @@ def get_current_week_number():
         return week_obj.week
 
     return constants.DEFAULT_WEEK
+
+def get_current_week_number_exclude_playoffs():
+    """Get the current week number using the latest season and date-based fallbacks, excluding playoffs."""
+    now = timezone.now().date()
+    latest_season_obj = Season.objects.order_by('-year', '-start_date').first()
+    if not latest_season_obj:
+        return constants.DEFAULT_WEEK_REGULAR
+
+    season_week_objs = Week.objects.filter(
+        season=latest_season_obj,
+        season__season_type=SeasonType.REGULAR
+    ).order_by('start_date', 'week')
+    first_week_obj = season_week_objs.first()
+    latest_week_obj = season_week_objs.order_by('-end_date', '-week').first()
+
+    if not first_week_obj or not latest_week_obj:
+        return constants.DEFAULT_WEEK_REGULAR
+
+    # If today is before the first week starts, return week 1.
+    if now < first_week_obj.start_date:
+        return 1
+
+    # If today is after the last available week ends, return the last available week number.
+    if now > latest_week_obj.end_date:
+        return latest_week_obj.week
+
+    # If today falls inside a week window, return that week.
+    week_obj = season_week_objs.filter(start_date__lte=now, end_date__gte=now).order_by('week').first()
+    if week_obj:
+        return week_obj.week
+
+    return constants.DEFAULT_WEEK_REGULAR
