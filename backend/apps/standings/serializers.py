@@ -32,6 +32,8 @@ class StandingsSerializer(serializers.ModelSerializer):
             "division_wins",
             "division_losses",
             "division_ties",
+            "points_for",
+            "points_against",
             "point_differential",
             "streak",
         ]

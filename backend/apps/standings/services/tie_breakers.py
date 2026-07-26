@@ -458,11 +458,7 @@ def _build_division_context(standings):
 
 
 def default_ordering_tiebreakers(standings):
-    ordered_standings = standings.select_related('team').order_by(
-        '-percentage',
-        '-wins',
-        '-point_differential',
-    )
+    ordered_standings = standings.select_related('team').apply_default_ordering()
     return list(ordered_standings.values_list('team_id', flat=True))
 
 
