@@ -12,7 +12,7 @@ def get_game_stats_for_team(team, game):
 def get_team_seasonal_stats(team, game,):
     stats_qs = cast(TeamGameStatsQuerySet, TeamGameStats.objects)
 
-    season_stats = stats_qs.by_season(game.week.season, regular_season_only=False)
+    season_stats = stats_qs.by_season(game.week.season.year, regular_season_only=False)
     season_off_stats = season_stats.agg_team_seasonal_offense_stats(game=game, team=team)
     season_def_stats = season_stats.agg_team_seasonal_defense_stats(game=game, team=team)
 

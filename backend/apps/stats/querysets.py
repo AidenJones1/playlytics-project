@@ -59,13 +59,13 @@ class TeamGameStatsQuerySet(QuerySet):
         )
 
     def by_season(self, season, regular_season_only=True):
-        queryset = self.filter(game__week__season__year=season.year)
+        queryset = self.filter(game__week__season__year=season)
         if regular_season_only:
             queryset = queryset.filter(game__week__season__season_type=SeasonType.REGULAR)
         return queryset
 
     def by_season_and_team(self, season, team, regular_season_only=True):
-        return self.by_season(season, regular_season_only).filter(team=team)
+        return self.by_season(season.year, regular_season_only).filter(team=team)
 
     def agg_team_seasonal_offense_stats(self, game, team):
         return self.filter(
