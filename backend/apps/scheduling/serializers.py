@@ -73,12 +73,14 @@ class GameResultsSerializer(cs.BaseScheduleSerializer):
         data = dict(TeamSerializer(obj.home_team).data)
         data["ratings"] = ratings.get_postgame_ratings_for_team(obj.home_team, obj)
         data["rankings"] = rankings.get_team_pregame_rankings(obj, obj.home_team)
+        data["game_stats"] = stats.get_game_stats_for_team(obj.home_team, obj)
         return data
 
     def get_away_team(self, obj):
         data = dict(TeamSerializer(obj.away_team).data)
         data["ratings"] = ratings.get_postgame_ratings_for_team(obj.away_team, obj)
         data["rankings"] = rankings.get_team_pregame_rankings(obj, obj.away_team)
+        data["game_stats"] = stats.get_game_stats_for_team(obj.away_team, obj)
         return data
 
 

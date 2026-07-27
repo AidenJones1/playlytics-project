@@ -3,6 +3,24 @@ from rest_framework import serializers
 from apps.core import constants
 from apps.core.serializers import SeasonWeekQuerySerializer
 from apps.core.utils import dates
+from apps.stats.models import TeamGameStats
+
+class GameStatsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TeamGameStats
+        fields = [
+            "rushing_attempts",
+            "rushing_yards",
+            "passing_attempts",
+            "completed_passes",
+            "passing_yards",
+            "rushing_touchdowns",
+            "passing_touchdowns",
+            "sacks_allowed",
+            "interceptions_thrown",
+            "fumbles_lost",
+            "successful_plays",
+        ]
 
 class OffenseStatsSerializer(serializers.Serializer):
     games_played = serializers.IntegerField()
@@ -19,6 +37,7 @@ class OffenseStatsSerializer(serializers.Serializer):
     total_fumbles_lost = serializers.IntegerField()
     total_turnovers_given = serializers.IntegerField()
     total_successful_plays = serializers.IntegerField()
+
 
 class DefenseStatsSerializer(serializers.Serializer):
     games_played = serializers.IntegerField()

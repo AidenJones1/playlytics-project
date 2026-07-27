@@ -2,7 +2,12 @@ from typing import cast
 
 from apps.stats.models import TeamGameStats
 from apps.stats.querysets import TeamGameStatsQuerySet
-from apps.stats.serializer import OffenseStatsSerializer, DefenseStatsSerializer
+from apps.stats.serializer import OffenseStatsSerializer, DefenseStatsSerializer, GameStatsSerializer
+
+def get_game_stats_for_team(team, game):
+    stats_qs = cast(TeamGameStatsQuerySet, TeamGameStats.objects)
+    game_stats = stats_qs.filter(game=game, team=team).first()
+    return GameStatsSerializer(game_stats).data
 
 def get_team_seasonal_stats(team, game,):
     stats_qs = cast(TeamGameStatsQuerySet, TeamGameStats.objects)
