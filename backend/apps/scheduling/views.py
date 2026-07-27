@@ -11,7 +11,6 @@ from apps.scheduling.choices import GameStatus
 from apps.scheduling.models import Game
 from apps.scheduling.querysets import GameQuerySet
 from apps.scheduling import serializers
-from apps.standings.services.rankings import get_team_pregame_rankings
 
 class WeeklyScheduleViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
@@ -75,8 +74,5 @@ class GamePreviewViewSet(viewsets.ViewSet):
             data['game'] = serializers.GameResultsSerializer(game_obj).data
         else:
             data['game'] = serializers.GamePreviewSerializer(game_obj).data
-        data['pregame_rankings'] = {
-            "home_team": get_team_pregame_rankings(game_obj, game_obj.home_team),
-            "away_team": get_team_pregame_rankings(game_obj, game_obj.away_team)
-        }
+
         return Response(data, status=status.HTTP_200_OK)
