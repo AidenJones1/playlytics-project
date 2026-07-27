@@ -27,4 +27,5 @@ urlpatterns = [
     path('api/scheduling/', include('apps.scheduling.urls', namespace='scheduling')),
     path('api/standings/', include('apps.standings.urls', namespace='standings')),
     path('api/elo_ratings/', include('apps.elo_ratings.urls', namespace='elo_ratings')),
+    path('api/stats/', include('apps.stats.urls', namespace='stats')),
 ]
