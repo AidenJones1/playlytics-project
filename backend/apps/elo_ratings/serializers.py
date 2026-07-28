@@ -18,3 +18,15 @@ class TeamELORatingSerializer(serializers.ModelSerializer):
             "lowest_ratings",
             "average_gain",
         ]
+
+class TeamELORatingProgressionSerializer(serializers.ModelSerializer):
+    team = TeamSerializer(read_only=True)
+
+    class Meta:
+        model = TeamELORating
+        fields = [
+            "team",
+            "ratings_before",
+            "ratings_after",
+            "game",
+        ]
