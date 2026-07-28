@@ -13,3 +13,8 @@ class TeamSerializer(serializers.ModelSerializer):
             'color_3',
             'color_4',
         ]
+
+class TeamDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Team
+        fields = "__all__"
