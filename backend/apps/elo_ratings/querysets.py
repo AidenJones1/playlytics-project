@@ -1,6 +1,9 @@
 from django.db.models import QuerySet, OuterRef, Subquery
 
 class TeamELORatingQuerySet(QuerySet):
+    def by_team_season(self, team, season):
+        return self.filter(team=team, game__week__season__year=season)
+
     def get_all_teams_recent_ratings(self, season, week):
         latest_rating_id = self.filter(
             team=OuterRef('team'),
