@@ -34,3 +34,10 @@ class GameQuerySet(QuerySet):
             Q(home_team=team_obj, away_team__conference=conference) |
             Q(away_team=team_obj, home_team__conference=conference)
         )
+
+    def get_previous_games(self, team_obj, game_obj, games_back=5):
+        return self.filter(
+            Q(home_team=team_obj) | Q(away_team=team_obj),
+            week__season__year=game_obj.week.season.year,
+            week__week__lt=game_obj.week.week
+        ).order_by('-week__week')[:games_back]
