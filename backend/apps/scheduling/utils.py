@@ -16,3 +16,37 @@ def get_teams_injury_reports(game_obj):
     """Retrieve the injury reports for both teams in a given game."""
     injury_report_qs = cast(TeamInjuryReportQuerySet, TeamInjuryReport.objects)
     return injury_report_qs.get_game_injury_report(game_obj)
+
+def net_point_differential(team, games):
+    """Calculate the net point differential for a team over a list of games."""
+    net_diff = 0
+    for game in games:
+        if game.home_team == team:
+            net_diff += (game.home_score or 0) - (game.away_score or 0)
+        elif game.away_team == team:
+            net_diff += (game.away_score or 0) - (game.home_score or 0)
+    return net_diff
+
+def average_points_differential(team, games):
+    """Calculate the average point differential for a team over a list of games."""
+    if not games:
+        return 0
+    net_diff = net_point_differential(team, games)
+    return net_diff / len(games)
+
+def net_points_scored(team, games):
+    """Calculate the net points scored for a team over a list of games."""
+    net_points = 0
+    for game in games:
+        if game.home_team == team:
+            net_points += game.home_score or 0
+        elif game.away_team == team:
+            net_points += game.away_score or 0
+    return net_points
+
+def average_points_scored(team, games):
+    """Calculate the average points scored for a team over a list of games."""
+    if not games:
+        return 0
+    net_points = net_points_scored(team, games)
+    return net_points / len(games)
