@@ -23,3 +23,30 @@ MAX_WEEK_NUMBER = 99
 DEFAULT_SEASON = 2025
 DEFAULT_WEEK = 22
 DEFAULT_WEEK_REGULAR = 18
+
+# Injury Status Weights
+INJURY_STATUS_WEIGHTS = {
+    "Out": 1.0,
+    "Doubtful": 0.7,
+    "Questionable": 0.35,
+    "Probable": 0.1
+}
+
+POSITION_WEIGHTS_INJURY = {
+    "QB": 1.0,
+    "T": 0.55,
+    "C": 0.4,
+    "G": 0.3,
+    "WR": 0.35,
+    "RB": 0.22,
+    "FB": 0.15,
+    "TE": 0.3,
+    "DE": 0.42,
+    "DT": 0.3,
+    "LB": 0.28,
+    "CB": 0.36,
+    "S": 0.24,
+    "K": 0.1,
+    "P": 0.1,
+    "LS": 0.1
+}
