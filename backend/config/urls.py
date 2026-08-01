@@ -30,4 +30,5 @@ urlpatterns = [
     path('api/stats/', include('apps.stats.urls', namespace='stats')),
     path('api/teams/', include('apps.teams.urls', namespace='teams')),
     path('api/models/', include('apps.models.urls', namespace='models')),
+    path('api/dashboard/', include('apps.dashboard.urls', namespace='dashboard')),
 ]
