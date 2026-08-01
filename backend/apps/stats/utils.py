@@ -8,6 +8,7 @@ from apps.stats.models import TeamGameStats
 def aggregate_team_stats(team, game_objs):
     """Aggregate team stats for a given team and a list of game objects."""
     stats_qs = cast(TeamGameStatsQuerySet, TeamGameStats.objects)
+    game_objs = list(game_objs)
     offense_stats = (
         stats_qs.filter(team=team, game__in=game_objs)
         .agg_season_offense_stats()

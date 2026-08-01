@@ -20,6 +20,7 @@ class TeamGameStatsQuerySet(QuerySet):
             'total_interceptions_thrown': Sum('interceptions_thrown'),
             'total_fumbles_lost': Sum('fumbles_lost'),
             'total_turnovers_given': Sum('interceptions_thrown') + Sum('fumbles_lost'),
+            'total_epa_gained': Sum('total_epa_gained'),
             'total_successful_plays': Sum('successful_plays'),
         }
 
@@ -39,6 +40,7 @@ class TeamGameStatsQuerySet(QuerySet):
             'interceptions_made': Sum('interceptions_thrown'),
             'fumbles_taken': Sum('fumbles_lost'),
             'total_turnovers_taken': Sum('interceptions_thrown') + Sum('fumbles_lost'),
+            'total_epa_allowed': Sum('total_epa_gained'),
             'total_successful_plays_allowed': Sum('successful_plays'),
         }
 
