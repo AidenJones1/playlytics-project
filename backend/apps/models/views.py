@@ -4,11 +4,12 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from apps.core.utils.dates import get_current_season_year, get_current_week_number
+from apps.models.mixins import ModelPerformance
 from apps.models.models import PredictionModel, Prediction
 from apps.scheduling.choices import GameStatus
 from apps.scheduling.models import Week
 
-class ModelPerformanceViewSet(viewsets.ViewSet):
+class ModelPerformanceViewSet(ModelPerformance, viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
     # Retrieves model performance metrics and insights
@@ -37,8 +38,13 @@ class ModelPerformanceViewSet(viewsets.ViewSet):
         current_season = current_week.season.year
 
         predictions_by_models = Prediction.objects.filter(model__in=matching_models)
-        predictions_by_season = predictions_by_models.filter(game__week__season__year=current_season)
-        predictions_by_week = predictions_by_season.filter(game__week=current_week)
+
+        model_performance_summary = self.get_model_performance(
+            current_week,
+            model_version=model_version,
+            season_year=current_season,
+            week_id=current_week.id,
+        )
 
         completed_predictions = predictions_by_models.filter(
             game__status=GameStatus.COMPLETED,
@@ -53,21 +59,6 @@ class ModelPerformanceViewSet(viewsets.ViewSet):
             )
             .order_by("game__week__season__year", "game__week__week")
         )
-
-        def _record(queryset):
-            completed_filter = Q(game__status=GameStatus.COMPLETED)
-            stats = queryset.aggregate(
-                wins=Count("id", filter=completed_filter & Q(was_correct=True)),
-                losses=Count("id", filter=completed_filter & Q(was_correct=False)),
-            )
-            wins = stats["wins"] or 0
-            losses = stats["losses"] or 0
-            total = wins + losses
-            return {
-                "wins": wins,
-                "losses": losses,
-                "percentage": round(wins / total, 3) if total > 0 else 0.0,
-            }
 
         data = {}
 
@@ -110,9 +101,9 @@ class ModelPerformanceViewSet(viewsets.ViewSet):
 
         data['model_performance'] = {
             "model_version": model_version,
-            "week": _record(predictions_by_week),
-            "season": _record(predictions_by_season),
-            "all_time": _record(predictions_by_models),
+            "week": model_performance_summary["week"],
+            "season": model_performance_summary["season"],
+            "all_time": model_performance_summary["all_time"],
             "week_by_week": [
                 {
                     "season": row["game__week__season__year"],

@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework.request import Request
 
 from apps.core.validators import validate_serializer
+from apps.models.mixins import ModelPerformance
 from apps.scheduling.choices import GameStatus
 from apps.scheduling.models import Game
 from apps.scheduling.querysets import GameQuerySet
@@ -31,8 +32,11 @@ class WeeklyScheduleViewSet(viewsets.ViewSet):
     # GET /api/scheduling/weekly-schedule/
     def list(self, request):
         querysets = self.get_queryset()
-        serializer = serializers.WeeklyScheduleSerializer(querysets, many=True)
+        serializer = serializers.WeeklyScheduleSerializer(querysets, many=True, context={'request': request})
+        perf = ModelPerformance()
+        perf.context = {'request': request}
         data = {}
+        data["model_performance"] = perf.get_model_performance(querysets)
         data["games"] = serializer.data
         return Response(data, status=status.HTTP_200_OK)
 
@@ -56,8 +60,11 @@ class TeamScheduleViewSet(viewsets.ViewSet):
     # GET /api/scheduling/team-schedule/
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        serializer = serializers.WeeklyScheduleSerializer(queryset, many=True)
+        serializer = serializers.WeeklyScheduleSerializer(queryset, many=True, context={'request': request})
+        perf = ModelPerformance()
+        perf.context = {'request': request}
         data = {}
+        data["model_performance"] = perf.get_model_performance(queryset)
         data["games"] = serializer.data
         return Response(data, status=status.HTTP_200_OK)
 
@@ -69,10 +76,14 @@ class GamePreviewViewSet(viewsets.ViewSet):
     # GET /api/scheduling/game-preview/<game_id>/
     def retrieve(self, request, *args, **kwargs):
         game_obj = get_object_or_404(Game, pk=kwargs['game_id'])
+        ctx = {'request': request}
+        perf = ModelPerformance()
+        perf.context = ctx
         data = {}
+        data['model_performance'] = perf.get_model_performance(game_obj)
         if game_obj.status == GameStatus.COMPLETED:
-            data['game'] = serializers.GameResultsSerializer(game_obj).data
+            data['game'] = serializers.GameResultsSerializer(game_obj, context=ctx).data
         else:
-            data['game'] = serializers.GamePreviewSerializer(game_obj).data
+            data['game'] = serializers.GamePreviewSerializer(game_obj, context=ctx).data
 
         return Response(data, status=status.HTTP_200_OK)
