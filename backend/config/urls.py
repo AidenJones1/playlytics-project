@@ -28,5 +28,6 @@ urlpatterns = [
     path('api/standings/', include('apps.standings.urls', namespace='standings')),
     path('api/elo_ratings/', include('apps.elo_ratings.urls', namespace='elo_ratings')),
     path('api/stats/', include('apps.stats.urls', namespace='stats')),
-    path('api/teams/', include('apps.teams.urls', namespace='teams'))
+    path('api/teams/', include('apps.teams.urls', namespace='teams')),
+    path('api/models/', include('apps.models.urls', namespace='models')),
 ]

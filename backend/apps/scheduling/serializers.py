@@ -3,19 +3,23 @@ from rest_framework import serializers
 from apps.core import serializers as cs
 from apps.core.validators import does_team_exist
 from apps.elo_ratings.services import ratings
+from apps.models.mixins import ModelPredictionMixin
 from apps.scheduling.models import Game
 from apps.standings.services import rankings
 from apps.stats.services import stats
 from apps.teams.serializers import TeamSerializer
 
 
-class WeeklyScheduleSerializer(cs.BaseScheduleSerializer):
+class WeeklyScheduleSerializer(ModelPredictionMixin, cs.BaseScheduleSerializer):
     home_team = serializers.SerializerMethodField()
     away_team = serializers.SerializerMethodField()
+    model_prediction = serializers.SerializerMethodField()
 
     class Meta(cs.BaseScheduleSerializer.Meta):
         model = Game
-        fields = cs.BaseScheduleSerializer.Meta.fields
+        fields = cs.BaseScheduleSerializer.Meta.fields + [
+            "model_prediction",
+        ]
 
     def get_home_team(self, obj):
         data = dict(TeamSerializer(obj.home_team).data)
@@ -28,14 +32,16 @@ class WeeklyScheduleSerializer(cs.BaseScheduleSerializer):
         return data
 
 
-class GamePreviewSerializer(cs.BaseScheduleSerializer):
+class GamePreviewSerializer(ModelPredictionMixin, cs.BaseScheduleSerializer):
     home_team = serializers.SerializerMethodField()
     away_team = serializers.SerializerMethodField()
+    model_prediction = serializers.SerializerMethodField()
 
     class Meta(cs.BaseScheduleSerializer.Meta):
         model = Game
         fields = cs.BaseScheduleSerializer.Meta.fields + [
             "venue",
+            "model_prediction",
         ]
 
     def get_home_team(self, obj):
@@ -58,15 +64,17 @@ class GamePreviewSerializer(cs.BaseScheduleSerializer):
         data["rolling_stats"] = rolling_stats
         return data
 
-    
-class GameResultsSerializer(cs.BaseScheduleSerializer):
+
+class GameResultsSerializer(ModelPredictionMixin, cs.BaseScheduleSerializer):
     home_team = serializers.SerializerMethodField()
     away_team = serializers.SerializerMethodField()
+    model_prediction = serializers.SerializerMethodField()
 
     class Meta(cs.BaseScheduleSerializer.Meta):
         model = Game
         fields = cs.BaseScheduleSerializer.Meta.fields + [
             "venue",
+            "model_prediction",
         ]
 
     def get_home_team(self, obj):
