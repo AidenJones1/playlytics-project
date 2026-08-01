@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from apps.core import serializers as cs
 from apps.models.mixins import ModelPredictionMixin
+from apps.pickems.services.pickems import get_game_user_picks
 from apps.scheduling.models import Game
 from apps.elo_ratings.services import ratings
 from apps.standings.services import rankings
@@ -12,13 +13,18 @@ class GameOfTheWeekSerializer(ModelPredictionMixin, cs.BaseScheduleSerializer):
     home_team = serializers.SerializerMethodField()
     away_team = serializers.SerializerMethodField()
     model_prediction = serializers.SerializerMethodField()
+    pickems = serializers.SerializerMethodField()
 
     class Meta(cs.BaseScheduleSerializer.Meta):
         model = Game
         fields = cs.BaseScheduleSerializer.Meta.fields + [
             "venue",
             "model_prediction",
+            "pickems",
         ]
+
+    def get_pickems(self, obj):
+        return get_game_user_picks(obj)
 
     def get_home_team(self, obj):
         data = dict(TeamSerializer(obj.home_team).data)

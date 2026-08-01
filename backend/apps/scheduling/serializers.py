@@ -4,6 +4,7 @@ from apps.core import serializers as cs
 from apps.core.validators import does_team_exist
 from apps.elo_ratings.services import ratings
 from apps.models.mixins import ModelPredictionMixin
+from apps.pickems.services.pickems import get_game_user_picks
 from apps.scheduling.models import Game
 from apps.standings.services import rankings
 from apps.stats.services import stats
@@ -36,12 +37,14 @@ class GamePreviewSerializer(ModelPredictionMixin, cs.BaseScheduleSerializer):
     home_team = serializers.SerializerMethodField()
     away_team = serializers.SerializerMethodField()
     model_prediction = serializers.SerializerMethodField()
+    pickems = serializers.SerializerMethodField()
 
     class Meta(cs.BaseScheduleSerializer.Meta):
         model = Game
         fields = cs.BaseScheduleSerializer.Meta.fields + [
             "venue",
             "model_prediction",
+            "pickems",
         ]
 
     def get_home_team(self, obj):
@@ -64,17 +67,22 @@ class GamePreviewSerializer(ModelPredictionMixin, cs.BaseScheduleSerializer):
         data["rolling_stats"] = rolling_stats
         return data
 
+    def get_pickems(self, obj):
+        return get_game_user_picks(obj)
+
 
 class GameResultsSerializer(ModelPredictionMixin, cs.BaseScheduleSerializer):
     home_team = serializers.SerializerMethodField()
     away_team = serializers.SerializerMethodField()
     model_prediction = serializers.SerializerMethodField()
+    pickems = serializers.SerializerMethodField()
 
     class Meta(cs.BaseScheduleSerializer.Meta):
         model = Game
         fields = cs.BaseScheduleSerializer.Meta.fields + [
             "venue",
             "model_prediction",
+            "pickems",
         ]
 
     def get_home_team(self, obj):
@@ -90,6 +98,9 @@ class GameResultsSerializer(ModelPredictionMixin, cs.BaseScheduleSerializer):
         data["rankings"] = rankings.get_team_pregame_rankings(obj, obj.away_team)
         data["game_stats"] = stats.get_game_stats_for_team(obj.away_team, obj)
         return data
+
+    def get_pickems(self, obj):
+        return get_game_user_picks(obj)
 
 
 class WeeklyScheduleQuerySerializer(cs.SeasonWeekQuerySerializer, cs.DivisionConferenceQuerySerializer):
