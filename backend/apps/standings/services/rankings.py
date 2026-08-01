@@ -84,6 +84,7 @@ def get_team_pregame_rankings(game_obj, team_obj):
 
     Rankings use the standings snapshot from the week leading up to the game.
     For week 1 games, no prior-week standings exist, so this returns None.
+    For playoff games, falls back to the team's most recent regular season standings.
     """
     if not isinstance(game_obj, Game):
         raise ValueError("game_obj must be an instance of Game")
@@ -94,7 +95,6 @@ def get_team_pregame_rankings(game_obj, team_obj):
     if pregame_week < 1:
         return None
 
-    # Use the standings snapshot from the week before the game.
     team_standings_qs = cast(TeamStandingsQuerySet, TeamStandings.objects)
     standings = team_standings_qs.by_season_week(
         season=game_obj.week.season.year,
@@ -103,8 +103,21 @@ def get_team_pregame_rankings(game_obj, team_obj):
 
     ordered_standings = standings.apply_default_ordering()
     team_standing = ordered_standings.filter(team=team_obj).first()
+
+    # Playoff games: fall back to the most recent regular season standings snapshot
     if not team_standing:
-        return None
+        team_standing = (
+            TeamStandings.objects
+            .filter(team=team_obj, week__season__year=game_obj.week.season.year)
+            .order_by('-week__week')
+            .first()
+        )
+        if not team_standing:
+            return None
+        standings = team_standings_qs.by_season_week(
+            season=game_obj.week.season.year,
+            week=team_standing.week.week
+        )
 
     league_rank = _get_league_rank(standings, team_obj)
     conference_rank = _get_conference_rank(standings, team_obj)
