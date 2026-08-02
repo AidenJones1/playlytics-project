@@ -33,6 +33,7 @@ urlpatterns = [
     path('api/teams/', include('apps.teams.urls', namespace='teams')),
     path('api/models/', include('apps.models.urls', namespace='models')),
     path('api/dashboard/', include('apps.dashboard.urls', namespace='dashboard')),
+    path('api/pickems/', include('apps.pickems.urls', namespace='pickems')),
 ]
 
 if settings.DEBUG:
