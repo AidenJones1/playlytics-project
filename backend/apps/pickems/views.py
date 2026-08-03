@@ -226,7 +226,7 @@ class GlobalPickemLeaderboardViewSet(viewsets.GenericViewSet):
     permission_classes = [IsAuthenticated]
     pagination_class = pickems_paginations.PickemLeaderboardPagination
 
-    # GET /api/pickems/leaderboard/
+    # GET /api/pickems/global-leaderboard/
     # Description: Get the global leaderboard across all users
     def list(self, request, *args, **kwargs):
         try:
