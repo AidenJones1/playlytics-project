@@ -1,0 +1,21 @@
+.site-footer {
+    display: flex;
+    justify-content: left;
+
+    padding: 0px 20px;
+
+    gap: 50px;
+}
+
+
+.icon {
+    height: 50px;
+    width: 50px;
+}
+
+
+.disclaimer {
+    font-size: 11px;
+    line-height: 1.2;
+    text-align: left;
+}
